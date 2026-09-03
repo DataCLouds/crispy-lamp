@@ -9,6 +9,7 @@ dependencies = [
     "flask-sqlalchemy>=3.1.0",
     "sqlalchemy>=2.0.0",
     "flask-login>=0.6.3",
+    "flask-wtf>=1.2.0",
     "python-dotenv>=1.0.0",
 ]
 
@@ -20,6 +21,10 @@ dev = [
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

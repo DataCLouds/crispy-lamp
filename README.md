@@ -16,6 +16,7 @@ A portfolio-quality digital journal web application that starts with personal da
 ## Tech Stack
 
 - **Backend**: Python, Flask (Application Factory & Blueprints)
+- **Forms & Validation**: Flask-WTF, WTForms
 - **Database / ORM**: SQLite, SQLAlchemy, Flask-SQLAlchemy
 - **Authentication**: Flask-Login, Werkzeug security password hashing
 - **Frontend**: Jinja2 Templates, Semantic HTML5, CSS3, Modern JavaScript
@@ -29,6 +30,10 @@ A portfolio-quality digital journal web application that starts with personal da
 ```
 ai-personal-journal/
 ├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── feature_request.md
+│   │   └── task.md
 │   └── workflows/
 ├── app/
 │   ├── auth/
