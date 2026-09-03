@@ -1,0 +1,41 @@
+from datetime import datetime, UTC
+from sqlalchemy import ForeignKey, Text
+from sqlalchemy.orm import DeclarativeBase,mapped_column, Mapped, relationship
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+class Base(DeclarativeBase):
+    pass
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    first_name: Mapped[str|None] = mapped_column(nullable=True)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(Text,nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now(UTC), nullable=False)
+
+    entries: Mapped[list["JournalEntry"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    def set_password(self, password: str) -> None:
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
+
+class JournalEntry(Base):
+    __tablename__ = "journal_entries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    user_emotion: Mapped[str] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now(UTC), nullable=False)
+    updated_at: Mapped[datetime|None] = mapped_column(default=None, onupdate=datetime.now(UTC))
+
+    user: Mapped["User"] = relationship(back_populates="entries")
