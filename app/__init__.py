@@ -2,7 +2,7 @@ from flask import Flask
 from .extensions import db
 from .config import Config
 
-# Creare and configure Flask application
+# Create and configure Flask application
 def create_app():
     app = Flask(__name__)
 
