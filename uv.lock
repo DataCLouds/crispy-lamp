@@ -14,6 +14,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "sqlalchemy" },
     { name = "werkzeug" },
+    { name = "wtforms" },
 ]
 
 [package.optional-dependencies]
@@ -31,6 +32,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "werkzeug", specifier = ">=3.1.8" },
+    { name = "wtforms", specifier = ">=3.2.2" },
 ]
 provides-extras = ["dev"]
 
