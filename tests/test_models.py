@@ -5,12 +5,13 @@ from sqlalchemy import create_engine, event, inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import Base, JournalEntry, User
+from app.models import JournalEntry, User
+from app.extensions import db
 
 
 @pytest.fixture
 def engine():
-    """Create a fresh in-memory SQLite database engine for each test with foreign keys enabled."""
+    """Create a fresh in-memory SQLite datadb\ engine for each test with foreign keys enabled."""
     db_engine = create_engine("sqlite:///:memory:")
 
     # SQLite does not enforce foreign keys by default; enable foreign key support
@@ -20,9 +21,9 @@ def engine():
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-    Base.metadata.create_all(db_engine)
+    db.metadata.create_all(db_engine)
     yield db_engine
-    Base.metadata.drop_all(db_engine)
+    db.metadata.drop_all(db_engine)
     db_engine.dispose()
 
 

@@ -1,15 +1,12 @@
 from datetime import UTC, datetime
 
 from sqlalchemy import ForeignKey, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from .extensions import db
 
-class Base(DeclarativeBase):
-    pass
-
-
-class User(Base):
+class User(db.Model):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -31,7 +28,7 @@ class User(Base):
         return check_password_hash(self.password_hash, password)
 
 
-class JournalEntry(Base):
+class JournalEntry(db.Model):
     __tablename__ = "journal_entries"
 
     id: Mapped[int] = mapped_column(primary_key=True)
