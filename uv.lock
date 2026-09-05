@@ -13,9 +13,16 @@ dependencies = [
     { name = "flask-wtf" },
     { name = "python-dotenv" },
     { name = "sqlalchemy" },
+    { name = "werkzeug" },
+    { name = "wtforms" },
 ]
 
 [package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "pytest" },
 ]
@@ -29,8 +36,13 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
+    { name = "werkzeug", specifier = ">=3.1.8" },
+    { name = "wtforms", specifier = ">=3.2.2" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.1.1" }]
 
 [[package]]
 name = "blinker"
