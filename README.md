@@ -36,6 +36,7 @@ ai-personal-journal/
 │   │   └── task.md
 │   └── workflows/
 ├── app/
+|   ├── main/
 │   ├── auth/
 │   ├── dashboard/
 │   ├── journal/
@@ -44,6 +45,7 @@ ai-personal-journal/
 │   │   ├── images/
 │   │   └── js/
 │   └── templates/
+|       ├── main/
 │       ├── auth/
 │       ├── dashboard/
 │       └── journal/
