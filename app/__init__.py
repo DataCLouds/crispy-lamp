@@ -28,5 +28,8 @@ def create_app():
     from .auth.routes import auth_bp
     app.register_blueprint(auth_bp)
 
+    from .journal.routes import journal_bp
+    app.register_blueprint(journal_bp)
+
     #Returning flask application object
     return app
