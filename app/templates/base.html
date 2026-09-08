@@ -15,8 +15,13 @@
             <a href="{{ url_for('auth.register') }}">Register</a>
         </nav>
     </header>
-
     <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 

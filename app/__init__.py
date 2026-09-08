@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import db, login_manager
+from .extensions import db, login_manager, csrf
 from .config import Config
 from .models import User 
 
@@ -20,6 +20,9 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
+
+    # Flask-WTF CSRF protection setup
+    csrf.init_app(app)
 
     # Register blueprints
     from .main.routes import main_bp
