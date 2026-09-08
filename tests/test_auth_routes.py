@@ -29,7 +29,7 @@ def client(app):
     return app.test_client()
 
 
-def get_csrf_token(client):
+def get_csrf_token(client, path="/register"):
     response = client.get("/register")
     page = response.get_data(as_text=True)
 
@@ -54,6 +54,29 @@ def registration_data(client, **overrides):
 
     data.update(overrides)
     return data
+
+def login_data(client, **overrides):
+    data = {
+        "username": "dhairya",
+        "password": "securepassword",
+        "csrf_token": get_csrf_token(client, "/login"),
+    }
+
+    data.update(overrides)
+    return data
+
+
+def create_test_user(app):
+    with app.app_context():
+        user = User(
+            username="dhairya",
+            email="dhairya@example.com",
+            first_name="Dhairya",
+        )
+        user.set_password("securepassword")
+
+        db.session.add(user)
+        db.session.commit()
 
 
 def test_register_get_displays_form(client):
@@ -201,3 +224,95 @@ def test_register_rejects_put_request(client):
     response = client.put("/register")
 
     assert response.status_code == 405
+
+def test_login_get_displays_form(client):
+    response = client.get("/login")
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert "Login" in page
+    assert 'name="username"' in page
+    assert 'name="password"' in page
+    assert 'name="csrf_token"' in page
+
+def test_valid_login_logs_user_in(client, app):
+    create_test_user(app)
+
+    response = client.post(
+        "/login",
+        data=login_data(client),
+    )
+
+    assert response.status_code == 302
+
+    with client.session_transaction() as session:
+        assert session.get("_user_id") is not None
+
+def test_login_rejects_wrong_password(client, app):
+    create_test_user(app)
+
+    response = client.post(
+        "/login",
+        data=login_data(
+            client,
+            password="wrongpassword",
+        ),
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid username or password." in response.data
+
+def test_login_rejects_unknown_username(client):
+    response = client.post(
+        "/login",
+        data=login_data(
+            client,
+            username="unknown-user",
+        ),
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid username or password." in response.data
+
+def test_login_rejects_invalid_form(client):
+    response = client.post(
+        "/login",
+        data=login_data(
+            client,
+            username="",
+        ),
+    )
+
+    assert response.status_code == 200
+    assert b"This field is required." in response.data
+
+
+def test_login_without_csrf_token_is_rejected(client):
+    response = client.post(
+        "/login",
+        data={
+            "username": "dhairya",
+            "password": "securepassword",
+        },
+    )
+
+    assert response.status_code == 400
+
+
+def test_login_with_invalid_csrf_token_is_rejected(client):
+    response = client.post(
+        "/login",
+        data=login_data(
+            client,
+            csrf_token="invalid-token",
+        ),
+    )
+
+    assert response.status_code == 400
+
+
+def test_login_rejects_put_request(client):
+    response = client.put("/login")
+
+    assert response.status_code == 405
+
