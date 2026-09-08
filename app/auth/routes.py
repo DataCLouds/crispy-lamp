@@ -1,5 +1,5 @@
-from flask import Blueprint, request, render_template, flash, redirect, url_for
-from flask_login import login_user
+from flask import Blueprint, render_template, flash, redirect, url_for
+from flask_login import login_user, logout_user, login_required
 from .forms import LoginForm, RegisterForm
 from ..models import User
 from ..extensions import db
@@ -18,6 +18,7 @@ def login():
             flash("Login sucessful :)")
             return redirect(url_for("main.home"))
 
+        # 
         flash("Invalid username or password.", "error")
 
     return render_template("auth/login.html", form=form)
@@ -59,9 +60,11 @@ def register():
             
 
     return render_template("auth/register.html", form=form)
-    
-        
-    
 
 
-
+@auth_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("auth.login"))

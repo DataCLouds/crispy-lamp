@@ -9,10 +9,23 @@
 <body>
     <header>
         <nav>
-            <a href="{{ url_for('main.home') }}">Home</a>
             <a href="{{ url_for('main.about') }}">About</a>
-            <a href="{{ url_for('auth.login') }}">Login</a>
-            <a href="{{ url_for('auth.register') }}">Register</a>
+
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.home') }}">Home</a>
+
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
         </nav>
     </header>
     <main>

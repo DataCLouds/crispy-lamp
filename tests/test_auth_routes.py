@@ -30,7 +30,7 @@ def client(app):
 
 
 def get_csrf_token(client, path="/register"):
-    response = client.get("/register")
+    response = client.get(path)
     page = response.get_data(as_text=True)
 
     match = re.search(
