@@ -80,3 +80,14 @@ def journal_edit(entry_id: int):
         "<p>Submit a POST with fields `content` and `user_emotion` (CSRF token required).</p>",
         200,
     )
+
+
+@journal_bp.route("/<int:entry_id>/delete", methods=["POST"])
+@login_required
+def journal_delete(entry_id: int):
+    """Delete an owned journal entry. Only accepts POST to avoid accidental deletes via GET."""
+    entry = _get_owned_entry_or_404(entry_id)
+    db.session.delete(entry)
+    db.session.commit()
+    flash("Journal entry deleted.", "success")
+    return redirect(url_for("journal.journal_list"))
