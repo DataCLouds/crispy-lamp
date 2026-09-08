@@ -1,14 +1,39 @@
-from flask import Blueprint
-from flask_login import login_required
+from flask import Blueprint, request, redirect, url_for, flash
+from flask_login import login_required, current_user
+from sqlalchemy import select
+
+from ..extensions import db
+from ..models import JournalEntry
 from .forms import JournalEntryForm
 
-journal_bp = Blueprint("journal", __name__)
+journal_bp = Blueprint("journal", __name__, url_prefix="/journal")
 
-@journal_bp.route("/journal",methods=["GET"])
+@journal_bp.route("/", methods=["GET"])
 @login_required
 def journal_list():
+    stmt = select(JournalEntry).filter_by(user_id=current_user.id).order_by(JournalEntry.created_at.desc())
+    entries = db.session.scalars(stmt).all()
+    # Minimal HTML list until templates added
+    items = "".join(f"<li>{e.created_at} — {e.user_emotion}: {e.content[:200]}</li>" for e in entries)
+    return f"<h1>Your journal entries ({len(entries)})</h1><ul>{items}</ul>", 200
+
+@journal_bp.route("/new", methods=["GET", "POST"])
+@login_required
+def journal_create():
     form = JournalEntryForm()
     if form.validate_on_submit():
-        # handle form submission
-        pass
-    return "Journal entries",200
+        entry = JournalEntry(
+            user_id=current_user.id,
+            content=form.content.data,
+            user_emotion=form.user_emotion.data,
+        )
+        db.session.add(entry)
+        db.session.commit()
+        flash("Journal entry created.", "success")
+        return redirect(url_for("journal.journal_list"))
+    # For GET or invalid POST show simple instructions (templates to be added in sub-issue 7)
+    return (
+        "<h1>New Journal Entry</h1>"
+        "<p>Submit via POST with fields `content` and `user_emotion` (CSRF token required).</p>",
+        200,
+    )
