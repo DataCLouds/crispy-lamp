@@ -54,3 +54,29 @@ def journal_detail(entry_id: int):
     entry = _get_owned_entry_or_404(entry_id)
     # Minimal plaintext/detail until templates are added
     return f"<h1>Entry {entry.id}</h1><p>{entry.created_at} — {entry.user_emotion}</p><div>{entry.content}</div>", 200
+
+
+@journal_bp.route("/<int:entry_id>/edit", methods=["GET", "POST"])
+@login_required
+def journal_edit(entry_id: int):
+    entry = _get_owned_entry_or_404(entry_id)
+    # Pre-fill form with existing entry data; WTForms will override with POST values when present
+    form = JournalEntryForm(obj=entry)
+
+    if form.validate_on_submit():
+        entry.content = form.content.data
+        entry.user_emotion = form.user_emotion.data
+        # updated_at will be managed by SQLAlchemy on update if configured; persist changes
+        db.session.add(entry)
+        db.session.commit()
+        flash("Journal entry updated.", "success")
+        return redirect(url_for("journal.journal_detail", entry_id=entry.id))
+
+    # For GET or invalid POST show simple instructions and current values (templates will replace this)
+    return (
+        f"<h1>Edit Entry {entry.id}</h1>"
+        f"<p>Current emotion: {entry.user_emotion}</p>"
+        f"<p>Current content: {entry.content[:500]}</p>"
+        "<p>Submit a POST with fields `content` and `user_emotion` (CSRF token required).</p>",
+        200,
+    )
