@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash
+from flask import Blueprint, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from sqlalchemy import select
 
@@ -37,3 +37,20 @@ def journal_create():
         "<p>Submit via POST with fields `content` and `user_emotion` (CSRF token required).</p>",
         200,
     )
+
+
+def _get_owned_entry_or_404(entry_id: int) -> JournalEntry:
+    """Return the JournalEntry if it belongs to current_user, else abort 404."""
+    stmt = select(JournalEntry).filter_by(id=entry_id, user_id=current_user.id)
+    entry = db.session.scalars(stmt).one_or_none()
+    if entry is None:
+        abort(404)
+    return entry
+
+
+@journal_bp.route("/<int:entry_id>", methods=["GET"])
+@login_required
+def journal_detail(entry_id: int):
+    entry = _get_owned_entry_or_404(entry_id)
+    # Minimal plaintext/detail until templates are added
+    return f"<h1>Entry {entry.id}</h1><p>{entry.created_at} — {entry.user_emotion}</p><div>{entry.content}</div>", 200
