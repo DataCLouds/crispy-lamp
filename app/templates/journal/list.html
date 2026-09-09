@@ -2,28 +2,71 @@
 {% block title %}Your Journal Entries{% endblock %}
 
 {% block content %}
-  <h1>Your Journal Entries ({{ entries|length }})</h1>
+  <h1>Your Journal Entries ({{ pagination.total }})</h1>
   <p><a href="{{ url_for('journal.journal_create') }}">Create new entry</a></p>
+
+  <section class="journal-filters">
+    <form method="get" action="{{ url_for('journal.journal_list') }}">
+      <div>
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" value="{{ current_search }}" placeholder="Search entries...">
+      </div>
+      <div>
+        <label for="emotion">Emotion:</label>
+        <select id="emotion" name="emotion">
+          <option value="">All Emotions</option>
+          {% for val, label in emotion_choices %}
+            <option value="{{ val }}" {% if current_emotion == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="start_date">From:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ current_start_date }}">
+      </div>
+      <div>
+        <label for="end_date">To:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ current_end_date }}">
+      </div>
+      <div>
+        <button type="submit">Filter</button>
+        <a href="{{ url_for('journal.journal_list') }}">Reset</a>
+      </div>
+    </form>
+  </section>
+
   {% if entries %}
-    <ul>
+    <ul class="journal-entries">
       {% for e in entries %}
         <li>
           <strong>{{ e.created_at }} — {{ e.user_emotion }}</strong>
           <div>{{ e.content[:200] }}{% if e.content|length > 200 %}...{% endif %}</div>
-          <p>
+          <div class="actions">
             <a href="{{ url_for('journal.journal_detail', entry_id=e.id) }}">View</a>
             |
             <a href="{{ url_for('journal.journal_edit', entry_id=e.id) }}">Edit</a>
             |
-            <form method="post" action="{{ url_for('journal.journal_delete', entry_id=e.id) }}" >
+            <form method="post" action="{{ url_for('journal.journal_delete', entry_id=e.id) }}" style="display:inline">
               {{ delete_form.hidden_tag() }}
               <button type="submit">Delete</button>
             </form>
-          </p>
+          </div>
         </li>
       {% endfor %}
     </ul>
+
+    {% if pagination.pages > 1 %}
+      <nav class="pagination">
+        {% if pagination.has_prev %}
+          <a href="{{ url_for('journal.journal_list', page=pagination.prev_num, per_page=pagination.per_page, emotion=current_emotion, search=current_search, start_date=current_start_date, end_date=current_end_date) }}">&laquo; Previous</a>
+        {% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}
+          <a href="{{ url_for('journal.journal_list', page=pagination.next_num, per_page=pagination.per_page, emotion=current_emotion, search=current_search, start_date=current_start_date, end_date=current_end_date) }}">Next &raquo;</a>
+        {% endif %}
+      </nav>
+    {% endif %}
   {% else %}
-    <p>No entries yet. <a href="{{ url_for('journal.journal_create') }}">Create one</a>.</p>
+    <p>No entries found. <a href="{{ url_for('journal.journal_create') }}">Create one</a>.</p>
   {% endif %}
 {% endblock %}
