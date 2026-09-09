@@ -21,3 +21,8 @@ class JournalEntryForm(FlaskForm):
         validators=[DataRequired(message="Select an emotion")],
     )
     submit = SubmitField("Save")
+
+
+class DeleteForm(FlaskForm):
+    """Small form used to provide CSRF protection for POST delete actions."""
+    submit = SubmitField("Delete")
