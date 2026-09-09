@@ -31,5 +31,10 @@ def create_app():
     from .journal.routes import journal_bp
     app.register_blueprint(journal_bp)
 
+    @app.context_processor
+    def inject_has_auth_logout():
+        # Expose a template variable indicating whether auth.logout endpoint exists
+        return {"has_auth_logout": "auth.logout" in app.view_functions}
+
     #Returning flask application object
     return app
