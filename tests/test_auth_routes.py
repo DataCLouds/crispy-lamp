@@ -316,3 +316,55 @@ def test_login_rejects_put_request(client):
 
     assert response.status_code == 405
 
+def test_authenticated_user_is_redirected_from_login(client, app):
+    create_test_user(app)
+
+    login_response = client.post(
+        "/login",
+        data=login_data(client),
+    )
+
+    assert login_response.status_code == 302
+
+    response = client.get("/login")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/home")
+
+def test_authenticated_user_is_redirected_from_register(client, app):
+    create_test_user(app)
+
+    login_response = client.post(
+        "/login",
+        data=login_data(client),
+    )
+
+    assert login_response.status_code == 302
+
+    response = client.get("/register")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/home")
+
+def test_successful_registration_flashes_message(client):
+    response = client.post(
+        "/register",
+        data=registration_data(client),
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Registration successful" in response.data
+
+
+def test_successful_login_flashes_message(client, app):
+    create_test_user(app)
+
+    response = client.post(
+        "/login",
+        data=login_data(client),
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Login successful :)" in response.data

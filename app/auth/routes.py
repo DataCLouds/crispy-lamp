@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from .forms import LoginForm, RegisterForm
 from ..models import User
 from ..extensions import db
@@ -8,6 +8,9 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    # if the user is already logged in redirect to home page
+    if current_user.is_authenticated:
+        return redirect(url_for("main.home"))
     form = LoginForm()
     if form.validate_on_submit():
         # search for the user in the database
@@ -15,7 +18,7 @@ def login():
         if user and user.check_password(form.password.data):
             # log the user in
             login_user(user)
-            flash("Login sucessful :)")
+            flash("Login successful :)")
             return redirect(url_for("main.home"))
 
         # 
@@ -26,6 +29,9 @@ def login():
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
+    # if the user is already logged in redirect to home page
+    if current_user.is_authenticated:
+        return redirect(url_for("main.home"))
     form = RegisterForm()
     if form.validate_on_submit():
         # search for an existing user in the database
