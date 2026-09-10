@@ -11,7 +11,7 @@ from app.extensions import db
 
 @pytest.fixture
 def engine():
-    """Create a fresh in-memory SQLite datadb\ engine for each test with foreign keys enabled."""
+    """Create a fresh in-memory SQLite database engine for each test with foreign keys enabled."""
     db_engine = create_engine("sqlite:///:memory:")
 
     # SQLite does not enforce foreign keys by default; enable foreign key support
