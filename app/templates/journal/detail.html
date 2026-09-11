@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Entry {{ entry.id }}{% endblock %}
+
+{% block content %}
+  <h1>Entry {{ entry.id }}</h1>
+  <p><strong>{{ entry.created_at }} — {{ entry.user_emotion }}</strong></p>
+  <div>{{ entry.content }}</div>
+
+  <div class="actions">
+    <a href="{{ url_for('journal.journal_edit', entry_id=entry.id) }}">Edit</a>
+    |
+    <form method="post" action="{{ url_for('journal.journal_delete', entry_id=entry.id) }}" style="display:inline">
+      {{ delete_form.hidden_tag() }}
+      <button type="submit">Delete</button>
+    </form>
+  </div>
+
+  <p><a href="{{ url_for('journal.journal_list') }}">Back to list</a></p>
+{% endblock %}

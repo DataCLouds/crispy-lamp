@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}New Journal Entry{% endblock %}
+
+{% block content %}
+  <h1>New Journal Entry</h1>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div>
+      {{ form.content.label }}<br>
+      {{ form.content(rows=10, cols=80) }}
+      {% for err in form.content.errors %}
+        <div class="error">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div>
+      {{ form.user_emotion.label }}<br>
+      {{ form.user_emotion() }}
+      {% for err in form.user_emotion.errors %}
+        <div class="error">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div>
+      {{ form.submit() }}
+    </div>
+  </form>
+{% endblock %}
