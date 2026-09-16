@@ -73,15 +73,30 @@ def _extract_csrf_token(html: str) -> str:
     ("POST", "/journal/1/edit", {"content": "Updated", "user_emotion": "Neutral"}),
     ("POST", "/journal/1/delete", {}),
 ])
-def test_unauthenticated_requests_redirect_to_login(anon_client, method, path, data):
+def test_unauthenticated_requests_redirect_to_login(
+    anon_client,
+    method,
+    path,
+    data,
+):
     if method == "GET":
         response = anon_client.get(path)
     else:
-        response = anon_client.post(path, data=data)
+        csrf_response = anon_client.get("/login")
+        token = _extract_csrf_token(
+            csrf_response.get_data(as_text=True)
+        )
+
+        post_data = dict(data or {})
+        post_data["csrf_token"] = token
+
+        response = anon_client.post(
+            path,
+            data=post_data,
+        )
 
     assert response.status_code in (301, 302)
     assert "/login" in response.headers["Location"]
-
 
 # ---------------------------------------------------------------------------
 # Ownership Authorization Edge Cases
@@ -190,7 +205,7 @@ def test_post_create_entry_without_csrf_is_rejected(auth_client_a, app):
             "user_emotion": "Happy",
         },
     )
-    assert response.status_code == 200  # Form validation failure, re-renders form
+    assert response.status_code == 400  # Form validation failure, re-renders form
     with app.app_context():
         stmt = select(JournalEntry).where(JournalEntry.user_id == app.user_a_id)
         entries = db.session.scalars(stmt).all()
@@ -238,13 +253,14 @@ def test_post_edit_entry_without_csrf_is_rejected(auth_client_a, app):
             "user_emotion": "Sad",
         },
     )
-    assert response.status_code == 200
+
+    assert response.status_code == 400
 
     with app.app_context():
         stmt = select(JournalEntry).where(JournalEntry.id == entry_id)
         persisted = db.session.scalars(stmt).one()
-        assert persisted.content == "Initial content"
 
+        assert persisted.content == "Initial content"
 
 def test_post_delete_entry_without_csrf_is_rejected(auth_client_a, app):
     with app.app_context():
