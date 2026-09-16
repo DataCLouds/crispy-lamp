@@ -1,7 +1,7 @@
 from flask import Flask
 from .extensions import db, login_manager, csrf
 from .config import Config
-from .models import User 
+from .models import User
 
 # Create and configure Flask application
 def create_app():

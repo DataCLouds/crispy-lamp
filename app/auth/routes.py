@@ -6,6 +6,8 @@ from ..extensions import db
 
 auth_bp = Blueprint("auth", __name__)
 
+#TODO:change main.home to dashboard.dashboard in the redirect url_for function after dashboard is implemented
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     # if the user is already logged in redirect to home page
