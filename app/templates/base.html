@@ -11,19 +11,27 @@
         <nav>
             <a href="{{ url_for('main.home') }}">Home</a>
             <a href="{{ url_for('main.about') }}">About</a>
+
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('journal.journal_list') }}">Journal</a>
-                {% if has_auth_logout %}
-                    <a href="{{ url_for('auth.logout') }}">Logout</a>
-                {% endif %}
+
                 <span>Hello, {{ current_user.username }}</span>
+
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+                    <button type="submit">Logout</button>
+                </form>
             {% else %}
                 <a href="{{ url_for('auth.login') }}">Login</a>
                 <a href="{{ url_for('auth.register') }}">Register</a>
             {% endif %}
+
         </nav>
     </header>
-
     <main>
         {# Flash messages #}
         {% with messages = get_flashed_messages(with_categories=true) %}

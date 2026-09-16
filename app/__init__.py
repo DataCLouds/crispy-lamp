@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import db, login_manager
+from .extensions import db, login_manager, csrf
 from .config import Config
 from .models import User 
 
@@ -21,6 +21,9 @@ def create_app():
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    # Flask-WTF CSRF protection setup
+    csrf.init_app(app)
+
     # Register blueprints
     from .main.routes import main_bp
     app.register_blueprint(main_bp)
@@ -30,11 +33,6 @@ def create_app():
 
     from .journal.routes import journal_bp
     app.register_blueprint(journal_bp)
-
-    @app.context_processor
-    def inject_has_auth_logout():
-        # Expose a template variable indicating whether auth.logout endpoint exists
-        return {"has_auth_logout": "auth.logout" in app.view_functions}
 
     #Returning flask application object
     return app
